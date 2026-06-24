@@ -5,8 +5,14 @@ twilio:
 
 jwt:
   secret: ${JWT_SECRET}
-  
+
 adapter:
-  micro-usuarios:
-    url: ${USUARIOS_SERVICE_URL}
-    timeout: 5000
+  micro-users:
+    url: ${USERS_SERVICE_URL}
+
+feign:
+  client:
+    config:
+      micro-users:
+        connectTimeout: 5000
+        readTimeout: 5000

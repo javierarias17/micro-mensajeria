@@ -5,15 +5,18 @@ import com.pragma.powerup.domain.spi.ISmsSenderPort;
 import com.pragma.powerup.domain.spi.IUserServicePort;
 import com.pragma.powerup.domain.usecase.SmsUseCase;
 import com.pragma.powerup.infrastructure.out.http.UserServiceAdapter;
+import com.pragma.powerup.infrastructure.out.http.client.IUserServiceFeignClient;
 import com.pragma.powerup.infrastructure.out.twilio.TwilioAdapter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
+@RequiredArgsConstructor
 public class BeanConfiguration {
+
+    private final IUserServiceFeignClient userServiceFeignClient;
 
     @Value("${twilio.account-sid}")
     private String accountSid;
@@ -24,23 +27,9 @@ public class BeanConfiguration {
     @Value("${twilio.phone-number}")
     private String phoneNumber;
 
-    @Value("${adapter.micro-usuarios.url}")
-    private String microUsuariosUrl;
-
-    @Value("${adapter.micro-usuarios.timeout}")
-    private int microUsuariosTimeout;
-
-    @Bean
-    public RestTemplate restTemplate() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(microUsuariosTimeout);
-        factory.setReadTimeout(microUsuariosTimeout);
-        return new RestTemplate(factory);
-    }
-
     @Bean
     public IUserServicePort userServicePort() {
-        return new UserServiceAdapter(restTemplate(), microUsuariosUrl);
+        return new UserServiceAdapter(userServiceFeignClient);
     }
 
     @Bean
